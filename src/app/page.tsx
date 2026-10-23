@@ -1,7 +1,7 @@
-import Header from "@/app/components/header";
-import Hero from "@/app/components/hero";
-import TaskSection from "@/app/components/taskSection";
-import FeatureSection from "@/app/components/featureSection";
+import Header from "@/app/components/home/header";
+import Hero from "@/app/components/home/hero";
+import TaskSection from "@/app/components/home/task-section";
+import FeatureSection from "@/app/components/home/feature-section";
 
 export default function Home() {
     return (

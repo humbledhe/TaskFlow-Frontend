@@ -1,6 +1,6 @@
 "use client";
 
-import AppLogo from "@/app/components/appLogo";
+import AppLogo from "@/app/components/home/app-logo";
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
@@ -9,10 +9,15 @@ import Link from "next/link";
 const inputStyles =
     "w-full rounded-lg border border-gray-300 px-2 py-1 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
-const API_URL = process.env.NEXT_PUBLIC_TASKFLOW_BACKEND_BASE_URL;
+interface User {
+    email: string;
+    publicId: string;
+    isVerified: boolean;
+    createdAt: string;
+}
 
-if (!API_URL) {
-    throw new Error("TASKFLOW_BACKEND_BASE_URL is undefined");
+interface UserResponse {
+    data: User;
 }
 
 export default function SignUp() {
@@ -27,31 +32,32 @@ export default function SignUp() {
         setError("");
 
         try {
-            const response = await fetch(
-                `${API_URL}/api/v1/users/create-account`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ email, password })
-                }
-            );
+            const formData = new FormData();
 
-            const data = await response.json();
+            formData.set("email", email);
+            formData.set("password", password);
+
+            const response = await fetch("/api/auth/signup", {
+                method: "POST",
+                body: formData
+            });
 
             if (!response.ok) {
                 return;
             }
 
-            console.log(data);
+            const responseData: UserResponse = await response.json();
+
+            const id = responseData.data.publicId;
+
+            router.replace(`/email-verification/${id}`);
         } catch {
-            console.error("Request failed: ", error);
+            setError("Unable to connect. Please try again.");
         }
     }
 
     return (
-        <section className="px-12 pt-40 min-h-screen bg-[#F5F6F8]">
+        <section className="px-12 pt-40 h-dvh bg-[#F5F6F8]">
             <Link href="/">
                 <AppLogo />
             </Link>

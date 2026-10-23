@@ -1,6 +1,6 @@
 "use client";
 
-import AppLogo from "@/app/components/appLogo";
+import AppLogo from "../home/app-logo";
 import Sidebar from "./sidebar";
 
 import { LuMenu } from "react-icons/lu";

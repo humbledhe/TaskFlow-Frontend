@@ -1,4 +1,4 @@
-import AppLogo from "./appLogo";
+import AppLogo from "./app-logo";
 
 import Link from "next/link";
 

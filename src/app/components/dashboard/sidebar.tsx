@@ -1,12 +1,13 @@
 "use client";
 
-import AppLogo from "@/app/components/appLogo";
+import AppLogo from "../home/app-logo";
+
 import { LuX } from "react-icons/lu";
 
-type SidebarProps = {
+interface SidebarProps {
     isOpen: boolean;
-    setIsOpen: boolean;
-};
+    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     return (
@@ -15,7 +16,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         >
             <div className="flex justify-between items-center">
                 <AppLogo />
-                <button onClick={() => setIsOpen(false)}>
+                <button onClick={() => setIsOpen(!isOpen)}>
                     <LuX size={28} />
                 </button>
             </div>

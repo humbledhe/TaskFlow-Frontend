@@ -1,4 +1,4 @@
-import TaskCard from "./taskCard";
+import TaskCard from "./task-card";
 
 const tasks = [
     {
@@ -23,7 +23,6 @@ export default function TaskSection() {
                     key={task.title}
                     title={task.title}
                     priority={task.priority}
-                    date={task.date}
                 />
             ))}
         </section>

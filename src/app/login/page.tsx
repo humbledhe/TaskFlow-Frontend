@@ -1,6 +1,6 @@
 "use client";
 
-import AppLogo from "@/app/components/appLogo";
+import AppLogo from "@/app/components/home/app-logo";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,12 +8,6 @@ import { useState, type FormEvent } from "react";
 
 const inputStyles =
     "w-full rounded-lg border border-gray-300 px-2 py-1 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
-
-const API_URL = process.env.NEXT_PUBLIC_TASKFLOW_BACKEND_BASE_URL;
-
-if (!API_URL) {
-    throw new Error("TASKFLOW_BACKEND_BASE_URL is undefined");
-}
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -27,39 +21,31 @@ export default function LoginPage() {
         setError("");
 
         try {
-            const response = await fetch(`${API_URL}/api/v1/auth/login`, {
+            const formData = new FormData();
+
+            formData.set("email", email);
+            formData.set("password", password);
+
+            const response = await fetch("/api/auth/login", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: new URLSearchParams({
-                    username: email,
-                    password: password
-                }),
-                credentials: "include"
+                body: formData
             });
 
-            const data = await response.json();
+            const result = await response.json();
 
             if (!response.ok) {
-                setError(
-                    typeof data.message === "string"
-                        ? data.message
-                        : "Unable to sign in. Check your credentials"
-                );
-
+                setEmail(result.detail ?? "Login failed. Please try again");
                 return;
             }
 
             router.replace("/dashboard");
-            router.refresh();
-        } catch (error) {
-            console.error("Request failed:", error);
+        } catch {
+            setError("Unable to connect. Please try again.");
         }
     }
 
     return (
-        <section className="px-12 pt-40 min-h-screen bg-[#F5F6F8]">
+        <section className="px-12 pt-40 h-dvh bg-[#F5F6F8]">
             <Link href="/">
                 <AppLogo />
             </Link>

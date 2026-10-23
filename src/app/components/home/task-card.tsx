@@ -1,7 +1,7 @@
-type TaskCardProps = {
+interface TaskCardProps {
     title: string;
     priority: string;
-};
+}
 
 export default function TaskCard({ title, priority }: TaskCardProps) {
     const changePriorityColors =

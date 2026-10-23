@@ -1,4 +1,4 @@
-import FeatureCard from "./featureCard";
+import FeatureCard from "./feature-card";
 
 const features = [
     {
