@@ -1,71 +1,32 @@
 "use client";
 
-import VerificationCodeInput from "@/app/components/email-verification/verification-code-input";
+import VerificationCodeForm from "@/app/components/email-verification/verification-code-form";
+import {
+    getVerificationCode,
+    verifyAccount
+} from "@/app/lib/dashboard/tasks/actions";
 import AppLogo from "@/app/components/home/app-logo";
 
-import { useEffect, useState } from "react";
+import { useEffect, useActionState } from "react";
 import { useParams } from "next/navigation";
+import { IoCloseCircle } from "react-icons/io5";
+
+interface VerificationState {
+    error: string | null;
+}
+
+const initialState: VerificationState = {
+    error: null
+};
 
 export default function EmailVerificationPage() {
-    const [error, setError] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-
     const { id } = useParams<{ id: string }>();
 
-    async function receiveVerificationCode() {
-        try {
-            setError("");
-
-            const response = await fetch(
-                `/api/auth/email-verification/${encodeURIComponent(id)}`,
-                {
-                    method: "GET",
-                    cache: "no-store"
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                setError(data.detail ?? "Failed.");
-                return;
-            }
-        } catch (error) {
-            console.error("Email verification request failed:", error);
-            setError("An unexpected error occurred.");
-        }
-    }
+    const code = async () => await getVerificationCode(id);
 
     useEffect(() => {
-        void receiveVerificationCode();
+        void code();
     }, [id]);
-
-    async function handleComplete(code: string) {
-        setError("");
-        setIsLoading(true);
-        try {
-            const response = await fetch(
-                `/api/auth/email-verification/${encodeURIComponent(id)}`,
-                {
-                    method: "PATCH",
-                    body: JSON.stringify({ code }),
-                    cache: "no-store"
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                setError(data.detail ?? "Failed.");
-                return;
-            }
-        } catch (error) {
-            console.error("Email verification failed:", error);
-            setError("An unexpected error occurred.");
-        } finally {
-            setIsLoading(false);
-        }
-    }
 
     return (
         <div className="bg-[#F5F6F8] h-dvh px-12">
@@ -80,23 +41,7 @@ export default function EmailVerificationPage() {
                     Enter the 6 digit code we sent to your email.
                 </p>
 
-                <VerificationCodeInput onComplete={handleComplete} />
-
-                {!isLoading ? (
-                    <button
-                        className="bg-[#0B6B67] text-white w-full mt-4 py-2 rounded-md text-xs"
-                        disabled
-                    >
-                        Verify
-                    </button>
-                ) : (
-                    <button
-                        className="bg-white text-white bg-[#D1D5DB] w-full mt-4 py-2 rounded-md text-xs"
-                        disabled
-                    >
-                        Verifing...
-                    </button>
-                )}
+                <VerificationCodeForm id={id} />
 
                 <p className="text-[#D1D5DB] text-xs mt-6">
                     Code expired or missing?{" "}

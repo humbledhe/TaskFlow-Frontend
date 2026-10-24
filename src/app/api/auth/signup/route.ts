@@ -2,7 +2,7 @@ import { BACKEND_URL } from "@/app/lib/api";
 
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
     const formData = await request.formData();
 
     const email = formData.get("email");
@@ -31,6 +31,17 @@ export async function POST(request: NextRequest) {
         cache: "no-store"
     });
 
+    if (backendResponse.status == 409) {
+        return NextResponse.json(
+            { detail: "Email already exists. Login" },
+            { status: 409 }
+        );
+    }
+
+    if (!backendResponse.ok) {
+        throw new Error("Something went wrong");
+    }
+
     const responseBody = await backendResponse.text();
 
     const response = new NextResponse(responseBody, {
@@ -41,6 +52,8 @@ export async function POST(request: NextRequest) {
                 "application/json"
         }
     });
+
+    console.log(response);
 
     return response;
 }

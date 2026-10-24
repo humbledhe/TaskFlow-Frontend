@@ -1,52 +1,56 @@
 "use client";
 
 import AppLogo from "@/app/components/home/app-logo";
+import { IoCloseCircle } from "react-icons/io5";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useState, useActionState } from "react";
 
 const inputStyles =
     "w-full rounded-lg border border-gray-300 px-2 py-1 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
+type LoginState = {
+    error: string | null;
+};
+
+const initialState: LoginState = {
+    error: null
+};
+
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+
     const router = useRouter();
 
-    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-
-        setError("");
-        setIsLoading(true);
-
-        try {
-            const formData = new FormData();
-
-            formData.set("email", email);
-            formData.set("password", password);
+    const [state, formAction, isPending] = useActionState(
+        async (
+            previousState: LoginState,
+            formData: FormData
+        ): Promise<LoginState> => {
+            previousState.error = null;
 
             const response = await fetch("/api/auth/login", {
                 method: "POST",
-                body: formData
+                body: formData,
+                cache: "no-store"
             });
 
             const result = await response.json();
 
-            if (!response.ok) {
-                setEmail(result.detail ?? "Login failed. Please try again");
-                return;
+            if (response.status === 401) {
+                return {
+                    error: result.detail
+                };
             }
 
-            router.replace("/dashboard");
-        } catch {
-            setError("Unable to connect. Please try again.");
-        } finally {
-            setIsLoading(false);
-        }
-    }
+            router.replace("dashboard");
+
+            return { error: null };
+        },
+        initialState
+    );
 
     return (
         <section className="px-12 pt-40 h-dvh bg-[#F5F6F8]">
@@ -55,10 +59,29 @@ export default function LoginPage() {
             </Link>
             <header>
                 <h1 className="mb-14 text-center font-bold mt-2">Log in</h1>
+
+                <div
+                    className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${
+                        state.error ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                    }`}
+                >
+                    <div className="overflow-hidden">
+                        <div className="mb-8 flex items-center gap-2 rounded-lg border border-[#F3D1D1] bg-[#FEF2F2] px-2 py-3">
+                            <IoCloseCircle
+                                size={18}
+                                className="shrink-0 text-red-500"
+                            />
+
+                            <p className="text-xs text-red-500">
+                                {state.error}
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </header>
 
             <main>
-                <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+                <form className="flex flex-col gap-6" action={formAction}>
                     <div className="flex flex-col text-xs gap-2">
                         <label htmlFor="email" className="font-semibold">
                             Email
@@ -90,7 +113,7 @@ export default function LoginPage() {
                     </div>
 
                     <div>
-                        {!isLoading ? (
+                        {!isPending ? (
                             <button
                                 type="submit"
                                 className="w-full bg-[#0B6B67] text-white py-1 rounded-lg text-sm"

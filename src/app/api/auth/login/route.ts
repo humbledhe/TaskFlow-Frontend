@@ -34,6 +34,18 @@ export async function POST(request: NextRequest) {
         cache: "no-store"
     });
 
+    if (backendResponse.status === 401) {
+        return NextResponse.json(
+            {
+                detail: "Incorrect email or password check your details and try again"
+            },
+            { status: 401 }
+        );
+    }
+
+    if (!backendResponse.ok)
+        throw new Error(`Failed to sign in ${backendResponse.status}`);
+
     const responseBody = await backendResponse.text();
 
     const response = new NextResponse(responseBody, {

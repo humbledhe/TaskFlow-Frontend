@@ -1,13 +1,26 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { createTasks } from "@/app/lib/dashboard/tasks/actions";
+
+import { useState, useActionState } from "react";
 import { useRouter } from "next/navigation";
 
 type Priority = "Low" | "Medium" | "High";
 
 type Status = "To do" | "In progress" | "Done";
 
+interface TaskState {
+    error: string | null;
+    success: boolean;
+}
+
+const initialState: TaskState = {
+    error: null,
+    success: false
+};
+
 export default function FormBody() {
+    const [title, setTitle] = useState("");
     const [priority, setPriority] = useState<Priority>("Medium");
     const [status, setStatus] = useState<Status>("To do");
     const [dueDate, setDueDate] = useState("");
@@ -18,57 +31,21 @@ export default function FormBody() {
     const handlePriorityChange = (value: Priority) => setPriority(value);
     const handleStatusChange = (value: Status) => setStatus(value);
 
-    const [title, setTitle] = useState("");
-    const [error, setError] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-
     const router = useRouter();
 
-    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
+    const [state, formAction, isPending] = useActionState(
+        async (previousState: TaskState, formData: FormData) => {
+            previousState.error = null;
 
-        if (isLoading) return;
+            await createTasks(formData);
 
-        try {
-            setError("");
-            setIsLoading(true);
-
-            const formData = new FormData();
-
-            formData.set("title", title);
-            formData.set("priority", priority);
-            formData.set("status", status);
-            formData.set("dueDate", dueDate);
-
-            const response = await fetch("/api/auth/dashboard/tasks", {
-                method: "POST",
-                body: formData,
-                cache: "no-store"
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                setError(data.detail ?? "Failed to create task");
-                return;
-            }
-
-            setTitle("");
-            setPriority("Medium");
-            setStatus("To do");
-            setDueDate("");
-
-            router.replace("/dashboard");
-        } catch (error) {
-            console.error("Failed to create task:", error);
-            setError("Something went wrong. Please try again.");
-        } finally {
-            setIsLoading(false);
-        }
-    }
+            return { error: null };
+        },
+        initialState
+    );
 
     return (
-        <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSubmit}>
+        <form className="flex min-h-0 flex-1 flex-col" action={formAction}>
             <div className="shrink-0">
                 <label className="text-sm font-semibold mb-2" htmlFor="title">
                     Title
@@ -129,7 +106,7 @@ export default function FormBody() {
             </div>
 
             <div className="mt-auto shrink-0 pt-4">
-                {!isLoading ? (
+                {!isPending ? (
                     <button
                         className="w-full bg-[#0B6B67] text-white py-2 rounded-lg font-semibold text-sm"
                         type="submit"
