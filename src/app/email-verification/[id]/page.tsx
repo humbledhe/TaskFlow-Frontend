@@ -8,40 +8,48 @@ import { useParams } from "next/navigation";
 
 export default function EmailVerificationPage() {
     const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     const { id } = useParams<{ id: string }>();
 
-    useEffect(() => {
-        async function receiveVerificationCode() {
-            try {
-                setError("");
+    async function receiveVerificationCode() {
+        try {
+            setError("");
 
-                const response = await fetch(
-                    `/api/auth/email-verification/${encodeURIComponent(id)}`
-                );
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    setError(data.detail ?? "Failed.");
-                    return;
+            const response = await fetch(
+                `/api/auth/email-verification/${encodeURIComponent(id)}`,
+                {
+                    method: "GET",
+                    cache: "no-store"
                 }
-            } catch (error) {
-                console.error("Email verification request failed:", error);
-                setError("An unexpected error occurred.");
-            }
-        }
+            );
 
+            const data = await response.json();
+
+            if (!response.ok) {
+                setError(data.detail ?? "Failed.");
+                return;
+            }
+        } catch (error) {
+            console.error("Email verification request failed:", error);
+            setError("An unexpected error occurred.");
+        }
+    }
+
+    useEffect(() => {
         void receiveVerificationCode();
-    }, []);
+    }, [id]);
 
     async function handleComplete(code: string) {
+        setError("");
+        setIsLoading(true);
         try {
             const response = await fetch(
                 `/api/auth/email-verification/${encodeURIComponent(id)}`,
                 {
                     method: "PATCH",
-                    body: JSON.stringify({ code })
+                    body: JSON.stringify({ code }),
+                    cache: "no-store"
                 }
             );
 
@@ -54,6 +62,8 @@ export default function EmailVerificationPage() {
         } catch (error) {
             console.error("Email verification failed:", error);
             setError("An unexpected error occurred.");
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -72,12 +82,21 @@ export default function EmailVerificationPage() {
 
                 <VerificationCodeInput onComplete={handleComplete} />
 
-                <button
-                    className="bg-[#0B6B67] text-white w-full mt-4 py-2 rounded-md text-xs"
-                    disabled
-                >
-                    Verify
-                </button>
+                {!isLoading ? (
+                    <button
+                        className="bg-[#0B6B67] text-white w-full mt-4 py-2 rounded-md text-xs"
+                        disabled
+                    >
+                        Verify
+                    </button>
+                ) : (
+                    <button
+                        className="bg-white text-white bg-[#D1D5DB] w-full mt-4 py-2 rounded-md text-xs"
+                        disabled
+                    >
+                        Verifing...
+                    </button>
+                )}
 
                 <p className="text-[#D1D5DB] text-xs mt-6">
                     Code expired or missing?{" "}

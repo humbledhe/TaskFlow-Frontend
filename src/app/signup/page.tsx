@@ -24,12 +24,14 @@ export default function SignUp() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
         setError("");
+        setIsLoading(true);
 
         try {
             const formData = new FormData();
@@ -53,6 +55,8 @@ export default function SignUp() {
             router.replace(`/email-verification/${id}`);
         } catch {
             setError("Unable to connect. Please try again.");
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -81,6 +85,7 @@ export default function SignUp() {
                             placeholder="Enter your email"
                             className={inputStyles}
                             onChange={event => setEmail(event.target.value)}
+                            required
                         />
                     </div>
 
@@ -95,16 +100,26 @@ export default function SignUp() {
                             placeholder="Enter your password"
                             className={inputStyles}
                             onChange={event => setPassword(event.target.value)}
+                            required
                         />
                     </div>
 
                     <div>
-                        <button
-                            type="submit"
-                            className="w-full bg-[#0B6B67] text-white py-1 rounded-lg text-sm"
-                        >
-                            sign up
-                        </button>
+                        {!isLoading ? (
+                            <button
+                                type="submit"
+                                className="w-full bg-[#0B6B67] text-white py-1 rounded-lg text-sm"
+                            >
+                                Sign up
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                className="w-full bg-white text-[#D1D5DB] py-1 rounded-lg text-sm"
+                            >
+                                Creating account...
+                            </button>
+                        )}
                     </div>
                 </form>
             </main>
