@@ -24,7 +24,7 @@ export async function getVerificationCode(id: string) {
 
 export async function verifyAccount(id: string, code: string) {
     const response = await fetch(
-        `${BACKEND_URL}/api/v1/email_verifications/verify-email-otp/${id}`,
+        `${BACKEND_URL}/api/v1/email_verifications/verify-email-otp/${encodeURIComponent(id)}`,
         {
             method: "PATCH",
             headers: {
@@ -34,8 +34,6 @@ export async function verifyAccount(id: string, code: string) {
             cache: "no-store"
         }
     );
-
-    if (!response.ok) throw new Error("Something went wrong.");
 
     const result = await response.json();
 
@@ -47,8 +45,6 @@ export async function verifyAccountAction(
     prevState: VerificationState,
     formData: FormData
 ): Promise<VerificationState> {
-    prevState.error = null;
-
     const code = formData.get("code");
 
     if (typeof code !== "string" || code.length !== 6) {
@@ -58,17 +54,14 @@ export async function verifyAccountAction(
         };
     }
 
-    try {
-        await verifyAccount(id, code);
+    const result = await verifyAccount(id, code);
 
-        return {
-            error: null,
-            success: true
-        };
-    } catch {
-        return {
-            error: "Verification failed. Please try again.",
-            success: false
-        };
+    if (!result.ok) {
+        return { error: result.detail, success: false };
     }
+
+    return {
+        error: null,
+        success: true
+    };
 }

@@ -39,13 +39,15 @@ export default function LoginPage() {
 
             const result = await response.json();
 
+            console.log(result);
+
             if (response.status === 401) {
                 return {
                     error: result.detail
                 };
             }
 
-            router.replace("dashboard");
+            router.replace("/dashboard");
 
             return { error: null };
         },

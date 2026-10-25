@@ -2,7 +2,7 @@
 
 import { IoCloseCircle } from "react-icons/io5";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useRef, useState, useEffect } from "react";
 import { OTPInput, SlotProps } from "input-otp";
 import { useRouter } from "next/navigation";
 
@@ -27,14 +27,16 @@ export default function VerificationCodeForm({
 }: VerificationCodeInputProps) {
     const formRef = useRef<HTMLFormElement>(null);
     const [code, setCode] = useState("");
+    const router = useRouter();
 
     const action = verifyAccountAction.bind(null, id);
 
     const [state, formAction, isPending] = useActionState(action, initialState);
 
-    const router = useRouter();
-
-    if (state.success) router.replace("/login");
+    useEffect(() => {
+        console.log(state.success);
+        if (state.success) router.replace("/login");
+    }, [state.success, router]);
 
     return (
         <form ref={formRef} action={formAction}>

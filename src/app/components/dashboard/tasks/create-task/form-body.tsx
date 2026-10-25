@@ -28,9 +28,6 @@ export default function FormBody() {
     const priorities: Priority[] = ["Low", "Medium", "High"];
     const statuses: Status[] = ["To do", "In progress", "Done"];
 
-    const handlePriorityChange = (value: Priority) => setPriority(value);
-    const handleStatusChange = (value: Status) => setStatus(value);
-
     const router = useRouter();
 
     const [state, formAction, isPending] = useActionState(
@@ -40,7 +37,12 @@ export default function FormBody() {
         ): Promise<TaskState> => {
             previousState.error = null;
 
-            await createTasks(formData);
+            formData.set("priority", priority);
+            formData.set("status", status);
+
+            const result = await createTasks(formData);
+
+            console.log(result);
 
             return { error: null, success: true };
         },
@@ -70,7 +72,7 @@ export default function FormBody() {
                         <button
                             key={level}
                             type="button"
-                            onClick={() => handlePriorityChange(level)}
+                            onClick={() => setPriority(level)}
                             aria-pressed={priority == level}
                             className={`border border-[#D1D5DB] transition-colors w-full py-2 px-4 rounded-lg ${priority == level ? "bg-[#0B6B67] text-white" : "bg-white"}`}
                         >
@@ -86,7 +88,7 @@ export default function FormBody() {
                         <button
                             key={level}
                             type="button"
-                            onClick={() => handleStatusChange(level)}
+                            onClick={() => setStatus(level)}
                             aria-pressed={status == level}
                             className={`border border-[#D1D5DB] transition-colors w-full py-2 px-4 rounded-lg ${status == level ? "bg-[#0B6B67] text-white" : "bg-white"}`}
                         >
