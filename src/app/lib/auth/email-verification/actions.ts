@@ -1,7 +1,7 @@
 "use server";
 
 import { BACKEND_URL } from "@/app/lib/api";
-import { VerificationState } from "@/app/components/email_verification/verification-code-form";
+import { VerificationState } from "@/app/components/email-verification/verification-code-form";
 
 export async function getVerificationCode(id: string) {
     const response = await fetch(

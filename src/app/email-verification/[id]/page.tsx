@@ -1,10 +1,7 @@
 "use client";
 
 import VerificationCodeForm from "@/app/components/email-verification/verification-code-form";
-import {
-    getVerificationCode,
-    verifyAccount
-} from "@/app/lib/dashboard/tasks/actions";
+import { getVerificationCode } from "@/app/lib/auth/email-verification/actions";
 import AppLogo from "@/app/components/home/app-logo";
 
 import { useEffect, useActionState } from "react";

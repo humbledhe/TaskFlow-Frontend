@@ -34,12 +34,15 @@ export default function FormBody() {
     const router = useRouter();
 
     const [state, formAction, isPending] = useActionState(
-        async (previousState: TaskState, formData: FormData) => {
+        async (
+            previousState: TaskState,
+            formData: FormData
+        ): Promise<TaskState> => {
             previousState.error = null;
 
             await createTasks(formData);
 
-            return { error: null };
+            return { error: null, success: true };
         },
         initialState
     );

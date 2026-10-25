@@ -13,12 +13,17 @@ function getCookieHeader(cookieStore: Awaited<ReturnType<typeof cookies>>) {
 export async function createTasks(formData: FormData) {
     const cookieStore = await cookies();
 
-    const response = await fetch("/api/auth/dashboard/tasks", {
+    const title = formData.get("title");
+    const priority = formData.get("priority");
+    const status = formData.get("status");
+    const dueDate = formData.get("dueDate");
+
+    const response = await fetch(`${BACKEND_URL}/api/v1/todos`, {
         method: "POST",
         headers: {
             Cookie: getCookieHeader(cookieStore)
         },
-        body: formData,
+        body: JSON.stringify({ title, priority, status, dueDate }),
         cache: "no-store"
     });
 
