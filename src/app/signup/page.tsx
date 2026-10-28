@@ -55,9 +55,7 @@ export default function SignUp() {
                 };
             }
 
-            const id = result.data.publicId;
-
-            router.replace(`/email-verification/${id}`);
+            router.replace("/login");
 
             return { error: null };
         },
