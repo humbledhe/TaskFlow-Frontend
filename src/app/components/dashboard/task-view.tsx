@@ -29,8 +29,6 @@ export default function TaskView({ tasks }: { tasks: Promise<TasksResponse> }) {
 
     const [searchQuery, setSearchQuery] = useState("");
 
-    console.log(userTasks);
-
     const isEmpty = userTasks.data.length === 0;
 
     return (

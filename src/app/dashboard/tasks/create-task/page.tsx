@@ -23,7 +23,7 @@ export default function CreateTaskPage() {
             <footer>
                 <button
                     className="w-full mt-4 text-sm pb-6"
-                    onClick={() => router.back()}
+                    onClick={() => router.replace("/dashboard")}
                 >
                     Cancel
                 </button>

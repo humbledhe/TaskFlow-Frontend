@@ -42,8 +42,6 @@ export default function FormBody() {
 
             const result = await createTasks(formData);
 
-            console.log(result);
-
             return { error: null, success: true };
         },
         initialState
